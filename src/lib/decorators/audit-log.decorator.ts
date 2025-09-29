@@ -1,4 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
+import 'reflect-metadata';
 import { AuditLogOptions, AUDIT_LOG_METADATA } from '../interfaces/audit-logger.interface';
 
 /**

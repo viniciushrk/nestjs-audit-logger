@@ -51,8 +51,8 @@ export class AuditLoggerService {
       }
     } catch (error) {
       this.logger.error(
-        `Failed to save audit log: ${error.message}`,
-        error.stack,
+        `Failed to save audit log: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : undefined,
       );
 
       // Don't throw the error to avoid breaking the main application flow
@@ -269,8 +269,8 @@ export class AuditLoggerService {
       return deletedCount;
     } catch (error) {
       this.logger.error(
-        `Failed to cleanup old audit logs: ${error.message}`,
-        error.stack,
+        `Failed to cleanup old audit logs: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : undefined,
       );
       throw error;
     }

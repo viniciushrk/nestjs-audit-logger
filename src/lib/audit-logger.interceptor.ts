@@ -76,7 +76,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
         const executionTime = Date.now() - startTime;
         const responseInfo: ResponseInfo = {
           statusCode: error.status || 500,
-          data: error.message,
+          data: error instanceof Error ? error.message : 'Unknown error',
         };
 
         // Create audit log for errors as well
@@ -230,7 +230,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
       // This is a fallback - customize based on your token format
       return undefined;
     } catch (error) {
-      this.logger.debug(`Failed to extract user ID from token: ${error.message}`);
+      this.logger.debug(`Failed to extract user ID from token: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return undefined;
     }
   }
@@ -256,7 +256,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
 
       return undefined;
     } catch (error) {
-      this.logger.debug(`Failed to extract email from token: ${error.message}`);
+      this.logger.debug(`Failed to extract email from token: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return undefined;
     }
   }
@@ -299,8 +299,8 @@ export class AuditLoggerInterceptor implements NestInterceptor {
       await this.auditService.saveAuditLog(auditData);
     } catch (error) {
       this.logger.error(
-        `Failed to save audit log: ${error.message}`,
-        error.stack,
+        `Failed to save audit log: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : undefined,
       );
     }
   }
