@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditLogEntity } from './entities/audit-log.entity';
 import { AuditLoggerService } from './audit-logger.service';
 import { AuditLoggerInterceptor } from './audit-logger.interceptor';
+import { AuditLoggerDiagnosticController } from './audit-logger-diagnostic.controller';
 import {
   AuditLoggerModuleOptions,
   AuditLoggerModuleAsyncOptions,
@@ -38,11 +39,16 @@ export class AuditLoggerModule {
   static forRoot(options: AuditLoggerModuleOptions = {}): DynamicModule {
     const connectionName = options.database?.connection || 'default';
 
+    const controllers = options.enableDiagnosticEndpoints
+      ? [AuditLoggerDiagnosticController]
+      : [];
+
     return {
       module: AuditLoggerModule,
       imports: [
         TypeOrmModule.forFeature([AuditLogEntity], connectionName),
       ],
+      controllers,
       providers: [
         {
           provide: AUDIT_LOGGER_OPTIONS,
@@ -51,6 +57,7 @@ export class AuditLoggerModule {
             logResponseBody: false,
             excludeRoutes: [],
             logLevel: 'info',
+            enableDiagnosticEndpoints: false,
             ...options,
           },
         },

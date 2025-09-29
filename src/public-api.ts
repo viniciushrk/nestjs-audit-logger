@@ -7,6 +7,9 @@ export * from './lib/audit-logger.service';
 // Interceptors
 export * from './lib/audit-logger.interceptor';
 
+// Controllers
+export * from './lib/audit-logger-diagnostic.controller';
+
 // Decorators
 export * from './lib/decorators/audit-log.decorator';
 

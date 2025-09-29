@@ -42,6 +42,7 @@ export interface AuditLoggerModuleOptions {
   logResponseBody?: boolean;
   excludeRoutes?: string[];
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  enableDiagnosticEndpoints?: boolean; // Nova opção
   database?: {
     connection?: string;
   };

@@ -33,24 +33,31 @@ export class AuditLoggerInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const handler = context.getHandler();
 
+    const request = context.switchToHttp().getRequest<Request>();
+    const response = context.switchToHttp().getResponse<Response>();
+
     // Only process if the handler has @AuditLog decorator
     if (!isAuditLogEnabled(handler)) {
+      this.logger.debug(`🔍 Endpoint ${request.method} ${request.url} - No @AuditLog decorator found, skipping audit`);
       return next.handle();
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
-    const response = context.switchToHttp().getResponse<Response>();
+    this.logger.debug(`🔍 Endpoint ${request.method} ${request.url} - @AuditLog decorator found, will audit`);
     const startTime = Date.now();
     const timestamp = new Date();
 
     // Check if route should be excluded
     if (this.shouldExcludeRoute(request.url)) {
+      this.logger.debug(`🔍 Endpoint ${request.method} ${request.url} - Route excluded, skipping audit`);
       return next.handle();
     }
 
     const auditOptions = getAuditLogOptions(handler) || {};
     const requestInfo = this.extractRequestInfo(request);
     const tokenInfo = this.extractTokenInfo(request);
+
+    this.logger.debug(`🔍 Audit options: ${JSON.stringify(auditOptions)}`);
+    this.logger.debug(`🔍 Token found: ${!!tokenInfo.token}, User ID: ${tokenInfo.userId}`);
 
     return next.handle().pipe(
       tap((responseData) => {
@@ -62,6 +69,7 @@ export class AuditLoggerInterceptor implements NestInterceptor {
 
         // Create audit log asynchronously to avoid blocking the response
         setImmediate(() => {
+          this.logger.debug(`🔄 Creating audit log for ${requestInfo.method} ${requestInfo.url}`);
           this.createAuditLog(
             timestamp,
             requestInfo,
